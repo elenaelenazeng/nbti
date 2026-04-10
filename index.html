@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NBTI - 牛逼人格测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* 首页 */
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 首页样式 */
+        .home-page {
+            text-align: center;
+            padding-top: 60px;
+        }
+
+        .logo {
+            font-size: 72px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #ffd200 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 60px rgba(245, 87, 108, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 8px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #a0a0a0;
+            margin-bottom: 40px;
+            letter-spacing: 4px;
+        }
+
+        .tagline {
+            font-size: 24px;
+            margin-bottom: 60px;
+            line-height: 1.6;
+        }
+
+        .tagline span {
+            display: block;
+            background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            padding: 18px 60px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(245, 87, 108, 0.5);
+        }
+
+        .start-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 问题页样式 */
+        .question-page {
+            padding-top: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .question-num {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 35px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            padding: 18px 20px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .option:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(245, 87, 108, 0.5);
+            transform: translateX(5px);
+        }
+
+        .option:active {
+            transform: scale(0.98);
+        }
+
+        /* 结果页样式 */
+        .result-page {
+            text-align: center;
+            padding-top: 40px;
+        }
+
+        .result-label {
+            font-size: 14px;
+            color: #888;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+        }
+
+        .result-word {
+            font-size: 64px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            letter-spacing: 6px;
+        }
+
+        .result-chinese {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: #ccc;
+        }
+
+        .result-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 24px;
+            padding: 30px 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .result-desc {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #ddd;
+            margin-bottom: 25px;
+        }
+
+        .result-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .tag {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .dimensions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .dimension {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: left;
+        }
+
+        .dimension-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .dimension-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .share-section {
+            margin-top: 30px;
+        }
+
+        .share-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 16px 50px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            margin-right: 10px;
+        }
+
+        .retry-btn {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.2);
+            padding: 14px 40px;
+            font-size: 16px;
+            color: #aaa;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .retry-btn:hover {
+            border-color: rgba(255,255,255,0.4);
+            color: #fff;
+        }
+
+        /* 结果颜色主题 */
+        .result-king { background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-boss { background: linear-gradient(135deg, #c0c0c0 0%, #808080 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-star { background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-fire { background: linear-gradient(135deg, #f12711 0%, #f5af19 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-wolf { background: linear-gradient(135deg, #434343 0%, #000000 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-sage { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-moon { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-seed { background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-loud { background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-hype { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-buzz { background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-foam { background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-chill { background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-slow { background: linear-gradient(135deg, #b79891 0%, #94716b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-lurk { background: linear-gradient(135deg, #373b44 0%, #4286f4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-sofa { background: linear-gradient(135deg, #8e9eab 0%, #eef2f3 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* 动画效果 */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .result-word {
+            animation: pulse 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 首页 -->
+        <div class="page home-page active" id="homePage">
+            <div class="logo">NBTI</div>
+            <div class="subtitle">牛逼人格类型指标</div>
+            <div class="tagline">
+                <span>测测你是哪种牛逼</span>
+                还是根本不牛逼 🤔
+            </div>
+            <button class="start-btn" onclick="startTest()">开始测试</button>
+        </div>
+
+        <!-- 问题页 -->
+        <div class="page question-page" id="questionPage">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="question-num" id="questionNum"></div>
+            <div class="question-text" id="questionText"></div>
+            <div class="options" id="options"></div>
+        </div>
+
+        <!-- 结果页 -->
+        <div class="page result-page" id="resultPage">
+            <div class="result-label">你的NBTI人格是</div>
+            <div class="result-word" id="resultWord"></div>
+            <div class="result-chinese" id="resultChinese"></div>
+            <div class="result-card">
+                <div class="result-desc" id="resultDesc"></div>
+                <div class="result-tags" id="resultTags"></div>
+                <div class="dimensions" id="dimensions"></div>
+            </div>
+            <div class="share-section">
+                <button class="share-btn" onclick="shareResult()">分享结果 ✨</button>
+                <br>
+                <button class="retry-btn" onclick="restart()">再测一次</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 题目数据
+        const questions = [
+            {
+                text: "朋友夸你「你好厉害」，你的内心活动是？",
+                options: [
+                    { text: "确实，我就是厉害 😎", scores: { real: 2 } },
+                    { text: "谢谢，但我觉得还行吧", scores: { real: 1 } },
+                    { text: "啊？我吗？你确定？", scores: { real: -1 } },
+                    { text: "快说，继续说，使劲夸", scores: { real: 0, show: 1 } }
+                ]
+            },
+            {
+                text: "做了一件值得骄傲的事，你会？",
+                options: [
+                    { text: "发朋友圈，让世界知道", scores: { show: 2 } },
+                    { text: "只跟最好的朋友分享", scores: { show: 0 } },
+                    { text: "默默截图，自己珍藏", scores: { show: -1 } },
+                    { text: "等别人发现再说", scores: { show: -2 } }
+                ]
+            },
+            {
+                text: "你觉得自己牛逼主要是因为？",
+                options: [
+                    { text: "天生的，没办法", scores: { talent: 2 } },
+                    { text: "悟性高，学什么都快", scores: { talent: 1 } },
+                    { text: "努力多年，慢慢积累的", scores: { talent: -1 } },
+                    { text: "主要是运气好", scores: { talent: -2, real: -1 } }
+                ]
+            },
+            {
+                text: "哪个场景会让你更有成就感？",
+                options: [
+                    { text: "帖子/作品爆了，疯狂涨粉", scores: { online: 2 } },
+                    { text: "朋友圈收获一堆赞", scores: { online: 1 } },
+                    { text: "当面被大佬认可", scores: { online: -1 } },
+                    { text: "升职加薪，实打实的", scores: { online: -2 } }
+                ]
+            },
+            {
+                text: "如果给你一个在500人大会上演讲的机会？",
+                options: [
+                    { text: "太好了，展示自己的时候到了", scores: { show: 2, real: 1 } },
+                    { text: "有点紧张，但我能行", scores: { show: 1 } },
+                    { text: "能不能换个人...", scores: { show: -1 } },
+                    { text: "我选择消失", scores: { show: -2 } }
+                ]
+            },
+            {
+                text: "你的技能树是怎么点的？",
+                options: [
+                    { text: "全靠直觉，野路子", scores: { talent: 2 } },
+                    { text: "系统学习+实战结合", scores: { talent: -1 } },
+                    { text: "疯狂看教程和攻略", scores: { talent: -2 } },
+                    { text: "copy+改改就会了", scores: { talent: 1 } }
+                ]
+            },
+            {
+                text: "你觉得自己在同龄人中属于？",
+                options: [
+                    { text: "前 5%，真心不是凡尔赛", scores: { real: 2 } },
+                    { text: "中上水平，比较优秀", scores: { real: 1 } },
+                    { text: "普普通通，芸芸众生", scores: { real: -1 } },
+                    { text: "不好说，各有所长吧", scores: { real: 0 } }
+                ]
+            },
+            {
+                text: "周末两天你更可能？",
+                options: [
+                    { text: "躺着刷手机，享受虚无", scores: { online: 2, talent: -1 } },
+                    { text: "出门社交，线下面基", scores: { online: -2, show: 1 } },
+                    { text: "搞点副业/学习充电", scores: { online: 0, talent: -1 } },
+                    { text: "打游戏/追剧/看比赛", scores: { online: 1 } }
+                ]
+            },
+            {
+                text: "你发朋友圈的频率大概是？",
+                options: [
+                    { text: "想发就发，记录生活", scores: { show: 2 } },
+                    { text: "偶尔发，精挑细选", scores: { show: 0 } },
+                    { text: "半年一条，惜字如金", scores: { show: -1 } },
+                    { text: "我没有朋友圈/仅自己可见", scores: { show: -2 } }
+                ]
+            },
+            {
+                text: "有人质疑你的能力，你会？",
+                options: [
+                    { text: "用实力打脸，等着瞧", scores: { real: 2, show: 1 } },
+                    { text: "内心mmp，表面微笑", scores: { real: 1, show: -1 } },
+                    { text: "反思一下，他说得有道理吗", scores: { real: -1 } },
+                    { text: "算了，不跟傻X计较", scores: { show: 0 } }
+                ]
+            },
+            {
+                text: "你学一个新东西通常需要多久？",
+                options: [
+                    { text: "很快，看看就会", scores: { talent: 2 } },
+                    { text: "需要练习，但能上手", scores: { talent: 0 } },
+                    { text: "得花不少时间", scores: { talent: -1 } },
+                    { text: "看情况，感兴趣的就快", scores: { talent: 1 } }
+                ]
+            },
+            {
+                text: "在网上冲浪时，你更常？",
+                options: [
+                    { text: "发内容，经营账号", scores: { online: 2, show: 2 } },
+                    { text: "互动评论，活跃社区", scores: { online: 1, show: 1 } },
+                    { text: "潜水围观，偶尔点赞", scores: { online: 1, show: -1 } },
+                    { text: "基本不用社交媒体", scores: { online: -2, show: -2 } }
+                ]
+            }
+        ];
+
+        // 16种人格结果
+        const results = {
+            'KING': {
+                word: 'KING',
+                chinese: '👑 王者',
+                desc: '你是真牛逼+敢秀+天赋型+现实世界的王者。走到哪里都是C位，气场两米八，别人只能仰望。',
+                tags: ['天生领袖', '气场强大', '实力碾压', '人群焦点'],
+                color: 'king'
+            },
+            'BOSS': {
+                word: 'BOSS',
+                chinese: '💼 大佬',
+                desc: '你是真牛逼+敢秀+努力型+现实世界的大佬。一步一个脚印爬上来的狠人，说话有分量。',
+                tags: ['白手起家', '能力服人', '有话语权', '圈内顶流'],
+                color: 'boss'
+            },
+            'STAR': {
+                word: 'STAR',
+                chinese: '⭐ 明星',
+                desc: '你是真牛逼+敢秀+天赋型+线上的明星。天生的流量体质，发什么都有人看，老天爷赏饭吃。',
+                tags: ['自带流量', '讨人喜欢', '天赋异禀', '网红本红'],
+                color: 'star'
+            },
+            'FIRE': {
+                word: 'FIRE',
+                chinese: '🔥 爆款',
+                desc: '你是真牛逼+敢秀+努力型+线上的爆款。多年深耕终于爆了，努力得到了回报，牛逼！',
+                tags: ['厚积薄发', '营业达人', '终于出圈', '励志典范'],
+                color: 'fire'
+            },
+            'WOLF': {
+                word: 'WOLF',
+                chinese: '🐺 独狼',
+                desc: '你是真牛逼+低调+天赋型+现实世界的独狼。闷声发大财，不显山不露水，但惹你的人都哭了。',
+                tags: ['深藏不露', '独来独往', '真正大佬', '生人勿近'],
+                color: 'wolf'
+            },
+            'SAGE': {
+                word: 'SAGE',
+                chinese: '🧙 智者',
+                desc: '你是真牛逼+低调+努力型+现实世界的智者。深藏功与名，圈内人都知道你厉害，但你懒得解释。',
+                tags: ['不争不抢', '受人尊敬', '内功深厚', '扫地僧'],
+                color: 'sage'
+            },
+            'MOON': {
+                word: 'MOON',
+                chinese: '🌙 月亮',
+                desc: '你是真牛逼+低调+天赋型+线上的月亮。小众但有死忠粉，懂的人自然懂，不需要全世界认可。',
+                tags: ['小众高级', '有调性', '不迎合', '宝藏博主'],
+                color: 'moon'
+            },
+            'SEED': {
+                word: 'SEED',
+                chinese: '🌱 种子',
+                desc: '你是真牛逼+低调+努力型+线上的种子。还在积累期，但潜力巨大，早晚要爆发，等着瞧。',
+                tags: ['蓄势待发', '潜力股', '闷声搞事', '未来可期'],
+                color: 'seed'
+            },
+            'LOUD': {
+                word: 'LOUD',
+                chinese: '📢 喇叭',
+                desc: '你声音大、存在感强，但牛逼程度还在路上。没关系，先把flag立了，后面慢慢填坑！',
+                tags: ['存在感强', '乐观自信', '在路上了', '声音洪亮'],
+                color: 'loud'
+            },
+            'HYPE': {
+                word: 'HYPE',
+                chinese: '🎪 炒作',
+                desc: '你很会包装自己，营销能力比实力先到达。这不一定是坏事，先让人看见，才能证明自己嘛。',
+                tags: ['会包装', '懂流量', '抓眼球', '营销鬼才'],
+                color: 'hype'
+            },
+            'BUZZ': {
+                word: 'BUZZ',
+                chinese: '🐝 热搜',
+                desc: '你很会在网上整活，但流量来得快去得也快。不过谁不是在浪潮里起起伏伏呢？',
+                tags: ['话题制造机', '来去如风', '整活达人', '追热点'],
+                color: 'buzz'
+            },
+            'FOAM': {
+                word: 'FOAM',
+                chinese: '🫧 泡沫',
+                desc: '你在网上看起来很努力很牛，但实际嘛...至少态度是好的！泡沫也是美的，对吧？',
+                tags: ['看起来很忙', '努力表演', '泡沫美学', '精神可嘉'],
+                color: 'foam'
+            },
+            'CHILL': {
+                word: 'CHILL',
+                chinese: '😌 佛系',
+                desc: '你可能有点本事，但懒得证明。人间清醒，不争不抢，反正也卷不动了，躺着挺好。',
+                tags: ['人间清醒', '看淡一切', '不想努力', '悠哉游哉'],
+                color: 'chill'
+            },
+            'SLOW': {
+                word: 'SLOW',
+                chinese: '🐢 慢热',
+                desc: '你还在修炼的路上，不急不躁。罗马不是一天建成的，你的时代还没到，别催。',
+                tags: ['慢工出细活', '还在修炼', '别催', '龟兔赛跑'],
+                color: 'slow'
+            },
+            'LURK': {
+                word: 'LURK',
+                chinese: '👀 潜水',
+                desc: '你在网上基本隐身，看别人牛逼就够了。低调才是最牛逼的炫耀...吗？',
+                tags: ['资深潜水', '只看不说', '神秘人', '沉默大多数'],
+                color: 'lurk'
+            },
+            'SOFA': {
+                word: 'SOFA',
+                chinese: '🛋️ 沙发',
+                desc: '你就是躺着刷手机的普通人，不牛逼也不装牛逼，真实得可爱。这不挺好的嘛！',
+                tags: ['普通但自洽', '躺平达人', '舒适至上', '反卷先锋'],
+                color: 'sofa'
+            }
+        };
+
+        // 状态变量
+        let currentQuestion = 0;
+        let scores = {
+            real: 0,    // 真实程度：正=真牛，负=装牛
+            show: 0,    // 外显程度：正=张扬，负=低调  
+            talent: 0,  // 来源：正=天赋，负=努力
+            online: 0   // 场景：正=线上，负=线下
+        };
+
+        // 开始测试
+        function startTest() {
+            currentQuestion = 0;
+            scores = { real: 0, show: 0, talent: 0, online: 0 };
+            showPage('questionPage');
+            showQuestion();
+        }
+
+        // 显示页面
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // 显示问题
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('questionNum').textContent = `问题 ${currentQuestion + 1} / ${questions.length}`;
+            document.getElementById('questionText').textContent = q.text;
+            document.getElementById('progressFill').style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+
+            const optionsHtml = q.options.map((opt, idx) => 
+                `<div class="option" onclick="selectOption(${idx})">${opt.text}</div>`
+            ).join('');
+            document.getElementById('options').innerHTML = optionsHtml;
+        }
+
+        // 选择选项
+        function selectOption(idx) {
+            const q = questions[currentQuestion];
+            const selected = q.options[idx];
+            
+            // 累加分数
+            for (let key in selected.scores) {
+                scores[key] += selected.scores[key];
+            }
+
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        // 计算并显示结果
+        function showResult() {
+            // 根据四个维度确定人格
+            const isReal = scores.real > 0;
+            const isShow = scores.show > 0;
+            const isTalent = scores.talent > 0;
+            const isOnline = scores.online > 0;
+
+            let resultKey;
+            
+            if (isReal && isShow && isTalent && !isOnline) resultKey = 'KING';
+            else if (isReal && isShow && !isTalent && !isOnline) resultKey = 'BOSS';
+            else if (isReal && isShow && isTalent && isOnline) resultKey = 'STAR';
+            else if (isReal && isShow && !isTalent && isOnline) resultKey = 'FIRE';
+            else if (isReal && !isShow && isTalent && !isOnline) resultKey = 'WOLF';
+            else if (isReal && !isShow && !isTalent && !isOnline) resultKey = 'SAGE';
+            else if (isReal && !isShow && isTalent && isOnline) resultKey = 'MOON';
+            else if (isReal && !isShow && !isTalent && isOnline) resultKey = 'SEED';
+            else if (!isReal && isShow && isTalent && !isOnline) resultKey = 'LOUD';
+            else if (!isReal && isShow && !isTalent && !isOnline) resultKey = 'HYPE';
+            else if (!isReal && isShow && isTalent && isOnline) resultKey = 'BUZZ';
+            else if (!isReal && isShow && !isTalent && isOnline) resultKey = 'FOAM';
+            else if (!isReal && !isShow && isTalent && !isOnline) resultKey = 'CHILL';
+            else if (!isReal && !isShow && !isTalent && !isOnline) resultKey = 'SLOW';
+            else if (!isReal && !isShow && isTalent && isOnline) resultKey = 'LURK';
+            else resultKey = 'SOFA';
+
+            const result = results[resultKey];
+
+            document.getElementById('resultWord').textContent = result.word;
+            document.getElementById('resultWord').className = `result-word result-${result.color}`;
+            document.getElementById('resultChinese').textContent = result.chinese;
+            document.getElementById('resultDesc').textContent = result.desc;
+
+            const tagsHtml = result.tags.map(t => `<span class="tag">#${t}</span>`).join('');
+            document.getElementById('resultTags').innerHTML = tagsHtml;
+
+            const dimensionsHtml = `
+                <div class="dimension">
+                    <div class="dimension-label">牛逼真实度</div>
+                    <div class="dimension-value">${isReal ? '✅ 真牛逼' : '🎭 精神牛逼'}</div>
+                </div>
+                <div class="dimension">
+                    <div class="dimension-label">外显程度</div>
+                    <div class="dimension-value">${isShow ? '📢 高调张扬' : '🤫 闷声低调'}</div>
+                </div>
+                <div class="dimension">
+                    <div class="dimension-label">牛逼来源</div>
+                    <div class="dimension-value">${isTalent ? '🎁 老天赏饭' : '💪 后天努力'}</div>
+                </div>
+                <div class="dimension">
+                    <div class="dimension-label">主战场</div>
+                    <div class="dimension-value">${isOnline ? '🌐 线上赛博' : '🏢 线下现实'}</div>
+                </div>
+            `;
+            document.getElementById('dimensions').innerHTML = dimensionsHtml;
+
+            showPage('resultPage');
+        }
+
+        // 分享结果
+        function shareResult() {
+            const resultWord = document.getElementById('resultWord').textContent;
+            const resultChinese = document.getElementById('resultChinese').textContent;
+            const text = `我在NBTI测试中是「${resultWord}」${resultChinese}！快来测测你是哪种牛逼人格？`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'NBTI 牛逼人格测试',
+                    text: text,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(text + ' ' + window.location.href).then(() => {
+                    showToast('已复制到剪贴板，快去分享吧！');
+                });
+            }
+        }
+
+        // 重新测试
+        function restart() {
+            showPage('homePage');
+        }
+
+        // 显示提示
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+    </script>
+</body>
+</html>
