@@ -3,749 +3,426 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NBTI - 牛逼人格测试</title>
+    <title>NBTI 3.0 - 牛逼人格测试</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #FAF9F6; min-height: 100vh; color: #1a1a1a; }
+        .container { max-width: 420px; margin: 0 auto; padding: 16px; min-height: 100vh; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .home-page.active { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 90vh; text-align: center; }
+        
+        .home-title { font-size: 48px; font-weight: 900; color: #FF6B6B; margin-bottom: 8px; }
+        .home-subtitle { font-size: 18px; color: #666; margin-bottom: 6px; }
+        .home-version { font-size: 12px; color: #aaa; margin-bottom: 32px; }
+        .home-desc { font-size: 14px; color: #888; line-height: 1.8; margin-bottom: 36px; }
+        
+        .start-btn { width: 100%; max-width: 280px; padding: 16px; font-size: 18px; font-weight: 700; border: none; border-radius: 50px; background: linear-gradient(135deg, #FF6B6B, #FF8E53); color: white; cursor: pointer; box-shadow: 0 4px 15px rgba(255,107,107,0.4); }
+        .start-btn:active { transform: scale(0.96); }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            color: #fff;
-            overflow-x: hidden;
-        }
+        .progress-bar { width: 100%; height: 4px; background: #eee; border-radius: 2px; margin-bottom: 20px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #FF6B6B, #FF8E53); border-radius: 2px; transition: width 0.3s; }
+        .question-counter { font-size: 12px; color: #aaa; text-align: center; margin-bottom: 16px; }
+        .question-text { font-size: 18px; font-weight: 700; line-height: 1.5; text-align: center; margin-bottom: 24px; min-height: 60px; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { width: 100%; padding: 14px 16px; font-size: 15px; line-height: 1.4; text-align: left; border: 2px solid #eee; border-radius: 14px; background: white; cursor: pointer; color: #333; }
+        .option-btn:active { transform: scale(0.98); border-color: #FF6B6B; background: #FFF5F5; }
+        .option-btn.selected { border-color: #FF6B6B; background: #FFF5F5; color: #FF6B6B; font-weight: 600; }
 
-        .container {
-            max-width: 420px;
-            margin: 0 auto;
-            padding: 20px;
-            min-height: 100vh;
-        }
+        .result-page { padding-bottom: 30px; }
+        .result-header { text-align: center; margin-bottom: 16px; }
+        .result-avatar { width: 160px; height: 180px; margin: 0 auto 10px; }
+        .result-avatar svg { width: 100%; height: 100%; }
+        .result-type-name { font-size: 28px; font-weight: 900; margin-bottom: 2px; }
+        .result-type-sub { font-size: 14px; color: #888; margin-bottom: 6px; }
+        .result-quote { font-size: 13px; color: #FF6B6B; font-style: italic; padding: 0 20px; }
 
-        /* 首页 */
-        .page {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
+        .card { background: white; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+        
+        .nb-meter-title { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+        .nb-meter-value { font-size: 24px; font-weight: 900; color: #FF6B6B; }
+        .nb-bar { width: 100%; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+        .nb-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #FF6B6B, #FF8E53, #FECA57); }
+        .nb-rarity { font-size: 11px; color: #aaa; margin-top: 6px; text-align: right; }
 
-        .page.active {
-            display: block;
-        }
+        .dim-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 12px; }
+        .dim-label { width: 55px; text-align: right; color: #888; }
+        .dim-label-r { width: 55px; text-align: left; color: #888; }
+        .dim-bar-wrap { flex: 1; height: 6px; background: #f0f0f0; border-radius: 3px; margin: 0 8px; position: relative; }
+        .dim-bar-fill { position: absolute; height: 100%; border-radius: 3px; }
+        .dim-bar-fill.left { right: 50%; background: linear-gradient(270deg, #FF6B6B, #FF6B6B88); }
+        .dim-bar-fill.right { left: 50%; background: linear-gradient(90deg, #48DBFB, #48DBFB88); }
+        .dim-bar-center { position: absolute; left: 50%; top: -2px; width: 2px; height: 10px; background: #ddd; transform: translateX(-50%); }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        
+        .analysis-text { font-size: 13px; line-height: 1.7; color: #555; }
 
-        /* 首页样式 */
-        .home-page {
-            text-align: center;
-            padding-top: 60px;
-        }
+        .opposite-section { display: flex; align-items: center; gap: 12px; }
+        .opposite-avatar { width: 60px; height: 70px; flex-shrink: 0; }
+        .opposite-avatar svg { width: 100%; height: 100%; }
+        .opposite-info { flex: 1; }
+        .opposite-label { font-size: 11px; color: #aaa; margin-bottom: 2px; }
+        .opposite-name { font-size: 15px; font-weight: 700; }
+        .opposite-desc { font-size: 12px; color: #888; margin-top: 2px; }
 
-        .logo {
-            font-size: 72px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #ffd200 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 60px rgba(245, 87, 108, 0.5);
-            margin-bottom: 10px;
-            letter-spacing: 8px;
-        }
-
-        .subtitle {
-            font-size: 18px;
-            color: #a0a0a0;
-            margin-bottom: 40px;
-            letter-spacing: 4px;
-        }
-
-        .tagline {
-            font-size: 24px;
-            margin-bottom: 60px;
-            line-height: 1.6;
-        }
-
-        .tagline span {
-            display: block;
-            background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .start-btn {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            border: none;
-            padding: 18px 60px;
-            font-size: 20px;
-            font-weight: bold;
-            color: white;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
-        }
-
-        .start-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(245, 87, 108, 0.5);
-        }
-
-        .start-btn:active {
-            transform: translateY(0);
-        }
-
-        /* 问题页样式 */
-        .question-page {
-            padding-top: 30px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
-            margin-bottom: 30px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-
-        .question-num {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 15px;
-        }
-
-        .question-text {
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 35px;
-            line-height: 1.5;
-        }
-
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .option {
-            background: rgba(255,255,255,0.05);
-            border: 2px solid rgba(255,255,255,0.1);
-            padding: 18px 20px;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 16px;
-            line-height: 1.4;
-        }
-
-        .option:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(245, 87, 108, 0.5);
-            transform: translateX(5px);
-        }
-
-        .option:active {
-            transform: scale(0.98);
-        }
-
-        /* 结果页样式 */
-        .result-page {
-            text-align: center;
-            padding-top: 40px;
-        }
-
-        .result-label {
-            font-size: 14px;
-            color: #888;
-            letter-spacing: 4px;
-            margin-bottom: 20px;
-        }
-
-        .result-word {
-            font-size: 64px;
-            font-weight: 900;
-            margin-bottom: 10px;
-            letter-spacing: 6px;
-        }
-
-        .result-chinese {
-            font-size: 28px;
-            margin-bottom: 30px;
-            color: #ccc;
-        }
-
-        .result-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 24px;
-            padding: 30px 25px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .result-desc {
-            font-size: 18px;
-            line-height: 1.8;
-            color: #ddd;
-            margin-bottom: 25px;
-        }
-
-        .result-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .tag {
-            background: rgba(255,255,255,0.1);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            color: #aaa;
-        }
-
-        .dimensions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 25px;
-        }
-
-        .dimension {
-            background: rgba(255,255,255,0.03);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: left;
-        }
-
-        .dimension-label {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .dimension-value {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .share-section {
-            margin-top: 30px;
-        }
-
-        .share-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            padding: 16px 50px;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-            margin-right: 10px;
-        }
-
-        .retry-btn {
-            background: transparent;
-            border: 2px solid rgba(255,255,255,0.2);
-            padding: 14px 40px;
-            font-size: 16px;
-            color: #aaa;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 15px;
-        }
-
-        .retry-btn:hover {
-            border-color: rgba(255,255,255,0.4);
-            color: #fff;
-        }
-
-        /* 结果颜色主题 */
-        .result-king { background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-boss { background: linear-gradient(135deg, #c0c0c0 0%, #808080 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-star { background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-fire { background: linear-gradient(135deg, #f12711 0%, #f5af19 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-wolf { background: linear-gradient(135deg, #434343 0%, #000000 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-sage { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-moon { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-seed { background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-loud { background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-hype { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-buzz { background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-foam { background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-chill { background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-slow { background: linear-gradient(135deg, #b79891 0%, #94716b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-lurk { background: linear-gradient(135deg, #373b44 0%, #4286f4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .result-sofa { background: linear-gradient(135deg, #8e9eab 0%, #eef2f3 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        /* Toast提示 */
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 1000;
-        }
-
-        .toast.show {
-            opacity: 1;
-        }
-
-        /* 动画效果 */
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .result-word {
-            animation: pulse 2s ease-in-out infinite;
-        }
+        .retry-btn { width: 100%; padding: 14px; font-size: 15px; font-weight: 700; border: none; border-radius: 50px; cursor: pointer; background: linear-gradient(135deg, #FF6B6B, #FF8E53); color: white; box-shadow: 0 3px 12px rgba(255,107,107,0.3); margin-top: 16px; }
+        .retry-btn:active { transform: scale(0.96); }
+        .watermark { text-align: center; font-size: 11px; color: #ccc; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 首页 -->
-        <div class="page home-page active" id="homePage">
-            <div class="logo">NBTI</div>
-            <div class="subtitle">牛逼人格类型指标</div>
-            <div class="tagline">
-                <span>测测你是哪种牛逼</span>
-                还是根本不牛逼 🤔
-            </div>
-            <button class="start-btn" onclick="startTest()">开始测试</button>
-        </div>
-
-        <!-- 问题页 -->
-        <div class="page question-page" id="questionPage">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="question-num" id="questionNum"></div>
-            <div class="question-text" id="questionText"></div>
-            <div class="options" id="options"></div>
-        </div>
-
-        <!-- 结果页 -->
-        <div class="page result-page" id="resultPage">
-            <div class="result-label">你的NBTI人格是</div>
-            <div class="result-word" id="resultWord"></div>
-            <div class="result-chinese" id="resultChinese"></div>
-            <div class="result-card">
-                <div class="result-desc" id="resultDesc"></div>
-                <div class="result-tags" id="resultTags"></div>
-                <div class="dimensions" id="dimensions"></div>
-            </div>
-            <div class="share-section">
-                <button class="share-btn" onclick="shareResult()">分享结果 ✨</button>
-                <br>
-                <button class="retry-btn" onclick="restart()">再测一次</button>
-            </div>
-        </div>
+<div class="container">
+    <div class="page home-page active" id="homePage">
+        <div class="home-title">NBTI</div>
+        <div class="home-subtitle">牛逼人格类型指标</div>
+        <div class="home-version">Niubi Type Indicator 3.0</div>
+        <div class="home-desc">20道灵魂拷问<br>测出你在社会中的牛逼浓度<br>找到属于你的牛逼人格 🔥</div>
+        <button class="start-btn" onclick="startQuiz()">开始测试 →</button>
     </div>
 
-    <div class="toast" id="toast"></div>
+    <div class="page" id="quizPage">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="question-counter" id="questionCounter"></div>
+        <div class="question-text" id="questionText"></div>
+        <div class="options" id="optionsWrap"></div>
+    </div>
 
-    <script>
-        // 题目数据
-        const questions = [
-            {
-                text: "朋友夸你「你好厉害」，你的内心活动是？",
-                options: [
-                    { text: "确实，我就是厉害 😎", scores: { real: 2 } },
-                    { text: "谢谢，但我觉得还行吧", scores: { real: 1 } },
-                    { text: "啊？我吗？你确定？", scores: { real: -1 } },
-                    { text: "快说，继续说，使劲夸", scores: { real: 0, show: 1 } }
-                ]
-            },
-            {
-                text: "做了一件值得骄傲的事，你会？",
-                options: [
-                    { text: "发朋友圈，让世界知道", scores: { show: 2 } },
-                    { text: "只跟最好的朋友分享", scores: { show: 0 } },
-                    { text: "默默截图，自己珍藏", scores: { show: -1 } },
-                    { text: "等别人发现再说", scores: { show: -2 } }
-                ]
-            },
-            {
-                text: "你觉得自己牛逼主要是因为？",
-                options: [
-                    { text: "天生的，没办法", scores: { talent: 2 } },
-                    { text: "悟性高，学什么都快", scores: { talent: 1 } },
-                    { text: "努力多年，慢慢积累的", scores: { talent: -1 } },
-                    { text: "主要是运气好", scores: { talent: -2, real: -1 } }
-                ]
-            },
-            {
-                text: "哪个场景会让你更有成就感？",
-                options: [
-                    { text: "帖子/作品爆了，疯狂涨粉", scores: { online: 2 } },
-                    { text: "朋友圈收获一堆赞", scores: { online: 1 } },
-                    { text: "当面被大佬认可", scores: { online: -1 } },
-                    { text: "升职加薪，实打实的", scores: { online: -2 } }
-                ]
-            },
-            {
-                text: "如果给你一个在500人大会上演讲的机会？",
-                options: [
-                    { text: "太好了，展示自己的时候到了", scores: { show: 2, real: 1 } },
-                    { text: "有点紧张，但我能行", scores: { show: 1 } },
-                    { text: "能不能换个人...", scores: { show: -1 } },
-                    { text: "我选择消失", scores: { show: -2 } }
-                ]
-            },
-            {
-                text: "你的技能树是怎么点的？",
-                options: [
-                    { text: "全靠直觉，野路子", scores: { talent: 2 } },
-                    { text: "系统学习+实战结合", scores: { talent: -1 } },
-                    { text: "疯狂看教程和攻略", scores: { talent: -2 } },
-                    { text: "copy+改改就会了", scores: { talent: 1 } }
-                ]
-            },
-            {
-                text: "你觉得自己在同龄人中属于？",
-                options: [
-                    { text: "前 5%，真心不是凡尔赛", scores: { real: 2 } },
-                    { text: "中上水平，比较优秀", scores: { real: 1 } },
-                    { text: "普普通通，芸芸众生", scores: { real: -1 } },
-                    { text: "不好说，各有所长吧", scores: { real: 0 } }
-                ]
-            },
-            {
-                text: "周末两天你更可能？",
-                options: [
-                    { text: "躺着刷手机，享受虚无", scores: { online: 2, talent: -1 } },
-                    { text: "出门社交，线下面基", scores: { online: -2, show: 1 } },
-                    { text: "搞点副业/学习充电", scores: { online: 0, talent: -1 } },
-                    { text: "打游戏/追剧/看比赛", scores: { online: 1 } }
-                ]
-            },
-            {
-                text: "你发朋友圈的频率大概是？",
-                options: [
-                    { text: "想发就发，记录生活", scores: { show: 2 } },
-                    { text: "偶尔发，精挑细选", scores: { show: 0 } },
-                    { text: "半年一条，惜字如金", scores: { show: -1 } },
-                    { text: "我没有朋友圈/仅自己可见", scores: { show: -2 } }
-                ]
-            },
-            {
-                text: "有人质疑你的能力，你会？",
-                options: [
-                    { text: "用实力打脸，等着瞧", scores: { real: 2, show: 1 } },
-                    { text: "内心mmp，表面微笑", scores: { real: 1, show: -1 } },
-                    { text: "反思一下，他说得有道理吗", scores: { real: -1 } },
-                    { text: "算了，不跟傻X计较", scores: { show: 0 } }
-                ]
-            },
-            {
-                text: "你学一个新东西通常需要多久？",
-                options: [
-                    { text: "很快，看看就会", scores: { talent: 2 } },
-                    { text: "需要练习，但能上手", scores: { talent: 0 } },
-                    { text: "得花不少时间", scores: { talent: -1 } },
-                    { text: "看情况，感兴趣的就快", scores: { talent: 1 } }
-                ]
-            },
-            {
-                text: "在网上冲浪时，你更常？",
-                options: [
-                    { text: "发内容，经营账号", scores: { online: 2, show: 2 } },
-                    { text: "互动评论，活跃社区", scores: { online: 1, show: 1 } },
-                    { text: "潜水围观，偶尔点赞", scores: { online: 1, show: -1 } },
-                    { text: "基本不用社交媒体", scores: { online: -2, show: -2 } }
-                ]
-            }
-        ];
+    <div class="page result-page" id="resultPage">
+        <div class="result-header">
+            <div class="result-avatar" id="resultAvatar"></div>
+            <div class="result-type-name" id="resultTypeName"></div>
+            <div class="result-type-sub" id="resultTypeSub"></div>
+            <div class="result-quote" id="resultQuote"></div>
+        </div>
+        <div class="card">
+            <div class="nb-meter-title"><span>🔥 牛逼浓度</span><span class="nb-meter-value" id="nbValue"></span></div>
+            <div class="nb-bar"><div class="nb-bar-fill" id="nbBarFill"></div></div>
+            <div class="nb-rarity" id="nbRarity"></div>
+        </div>
+        <div class="card">
+            <div class="card-title">📊 四维人格</div>
+            <div id="dimRows"></div>
+        </div>
+        <div class="card">
+            <div class="card-title">🏷️ 你的标签</div>
+            <div class="tags-wrap" id="tagsWrap"></div>
+        </div>
+        <div class="card">
+            <div class="card-title">💬 性格简评</div>
+            <div class="analysis-text" id="analysisText"></div>
+        </div>
+        <div class="card opposite-section" id="oppositeSection">
+            <div class="opposite-avatar" id="oppositeAvatar"></div>
+            <div class="opposite-info">
+                <div class="opposite-label">😈 你的反面人格</div>
+                <div class="opposite-name" id="oppositeName"></div>
+                <div class="opposite-desc" id="oppositeDesc"></div>
+            </div>
+        </div>
+        <button class="retry-btn" onclick="retryQuiz()">再测一次</button>
+        <div class="watermark">NBTI 3.0 · 牛逼人格测试</div>
+    </div>
+</div>
 
-        // 16种人格结果
-        const results = {
-            'KING': {
-                word: 'KING',
-                chinese: '👑 王者',
-                desc: '你是真牛逼+敢秀+天赋型+现实世界的王者。走到哪里都是C位，气场两米八，别人只能仰望。',
-                tags: ['天生领袖', '气场强大', '实力碾压', '人群焦点'],
-                color: 'king'
-            },
-            'BOSS': {
-                word: 'BOSS',
-                chinese: '💼 大佬',
-                desc: '你是真牛逼+敢秀+努力型+现实世界的大佬。一步一个脚印爬上来的狠人，说话有分量。',
-                tags: ['白手起家', '能力服人', '有话语权', '圈内顶流'],
-                color: 'boss'
-            },
-            'STAR': {
-                word: 'STAR',
-                chinese: '⭐ 明星',
-                desc: '你是真牛逼+敢秀+天赋型+线上的明星。天生的流量体质，发什么都有人看，老天爷赏饭吃。',
-                tags: ['自带流量', '讨人喜欢', '天赋异禀', '网红本红'],
-                color: 'star'
-            },
-            'FIRE': {
-                word: 'FIRE',
-                chinese: '🔥 爆款',
-                desc: '你是真牛逼+敢秀+努力型+线上的爆款。多年深耕终于爆了，努力得到了回报，牛逼！',
-                tags: ['厚积薄发', '营业达人', '终于出圈', '励志典范'],
-                color: 'fire'
-            },
-            'WOLF': {
-                word: 'WOLF',
-                chinese: '🐺 独狼',
-                desc: '你是真牛逼+低调+天赋型+现实世界的独狼。闷声发大财，不显山不露水，但惹你的人都哭了。',
-                tags: ['深藏不露', '独来独往', '真正大佬', '生人勿近'],
-                color: 'wolf'
-            },
-            'SAGE': {
-                word: 'SAGE',
-                chinese: '🧙 智者',
-                desc: '你是真牛逼+低调+努力型+现实世界的智者。深藏功与名，圈内人都知道你厉害，但你懒得解释。',
-                tags: ['不争不抢', '受人尊敬', '内功深厚', '扫地僧'],
-                color: 'sage'
-            },
-            'MOON': {
-                word: 'MOON',
-                chinese: '🌙 月亮',
-                desc: '你是真牛逼+低调+天赋型+线上的月亮。小众但有死忠粉，懂的人自然懂，不需要全世界认可。',
-                tags: ['小众高级', '有调性', '不迎合', '宝藏博主'],
-                color: 'moon'
-            },
-            'SEED': {
-                word: 'SEED',
-                chinese: '🌱 种子',
-                desc: '你是真牛逼+低调+努力型+线上的种子。还在积累期，但潜力巨大，早晚要爆发，等着瞧。',
-                tags: ['蓄势待发', '潜力股', '闷声搞事', '未来可期'],
-                color: 'seed'
-            },
-            'LOUD': {
-                word: 'LOUD',
-                chinese: '📢 喇叭',
-                desc: '你声音大、存在感强，但牛逼程度还在路上。没关系，先把flag立了，后面慢慢填坑！',
-                tags: ['存在感强', '乐观自信', '在路上了', '声音洪亮'],
-                color: 'loud'
-            },
-            'HYPE': {
-                word: 'HYPE',
-                chinese: '🎪 炒作',
-                desc: '你很会包装自己，营销能力比实力先到达。这不一定是坏事，先让人看见，才能证明自己嘛。',
-                tags: ['会包装', '懂流量', '抓眼球', '营销鬼才'],
-                color: 'hype'
-            },
-            'BUZZ': {
-                word: 'BUZZ',
-                chinese: '🐝 热搜',
-                desc: '你很会在网上整活，但流量来得快去得也快。不过谁不是在浪潮里起起伏伏呢？',
-                tags: ['话题制造机', '来去如风', '整活达人', '追热点'],
-                color: 'buzz'
-            },
-            'FOAM': {
-                word: 'FOAM',
-                chinese: '🫧 泡沫',
-                desc: '你在网上看起来很努力很牛，但实际嘛...至少态度是好的！泡沫也是美的，对吧？',
-                tags: ['看起来很忙', '努力表演', '泡沫美学', '精神可嘉'],
-                color: 'foam'
-            },
-            'CHILL': {
-                word: 'CHILL',
-                chinese: '😌 佛系',
-                desc: '你可能有点本事，但懒得证明。人间清醒，不争不抢，反正也卷不动了，躺着挺好。',
-                tags: ['人间清醒', '看淡一切', '不想努力', '悠哉游哉'],
-                color: 'chill'
-            },
-            'SLOW': {
-                word: 'SLOW',
-                chinese: '🐢 慢热',
-                desc: '你还在修炼的路上，不急不躁。罗马不是一天建成的，你的时代还没到，别催。',
-                tags: ['慢工出细活', '还在修炼', '别催', '龟兔赛跑'],
-                color: 'slow'
-            },
-            'LURK': {
-                word: 'LURK',
-                chinese: '👀 潜水',
-                desc: '你在网上基本隐身，看别人牛逼就够了。低调才是最牛逼的炫耀...吗？',
-                tags: ['资深潜水', '只看不说', '神秘人', '沉默大多数'],
-                color: 'lurk'
-            },
-            'SOFA': {
-                word: 'SOFA',
-                chinese: '🛋️ 沙发',
-                desc: '你就是躺着刷手机的普通人，不牛逼也不装牛逼，真实得可爱。这不挺好的嘛！',
-                tags: ['普通但自洽', '躺平达人', '舒适至上', '反卷先锋'],
-                color: 'sofa'
-            }
+<script>
+function makeSVG(key) {
+    var d = TYPES[key];
+    var c = d.color;
+    var svg = '<svg viewBox="0 0 200 230" xmlns="http://www.w3.org/2000/svg">';
+    svg += '<circle cx="100" cy="130" r="85" fill="' + d.bg + '" opacity="0.6"/>';
+    
+    if (key === 'KING') {
+        svg += '<path d="M52 115 Q40 140 35 190 L55 185 Q58 145 65 120Z" fill="#C0392B"/>';
+        svg += '<path d="M148 115 Q160 140 165 190 L145 185 Q142 145 135 120Z" fill="#C0392B"/>';
+        svg += '<path d="M35 188 L55 183" stroke="#F1C40F" stroke-width="3"/>';
+        svg += '<path d="M165 188 L145 183" stroke="#F1C40F" stroke-width="3"/>';
+    }
+    if (key === 'SHY') {
+        svg += '<rect x="0" y="20" width="55" height="210" fill="#D4C5A9" rx="3"/>';
+        svg += '<rect x="52" y="20" width="4" height="210" fill="#C4B598"/>';
+    }
+    
+    svg += '<path d="M75 118 Q72 135 65 170 L135 170 Q128 135 125 118Z" fill="' + c + '"/>';
+    svg += '<path d="M88 118 L100 128 L112 118" fill="' + c + '" opacity="0.8"/>';
+    svg += '<rect x="72" y="125" width="56" height="5" rx="2" fill="#FFF" opacity="0.3"/>';
+    
+    svg += '<rect x="80" y="170" width="12" height="28" rx="5" fill="#FFDCC8"/>';
+    svg += '<rect x="108" y="170" width="12" height="28" rx="5" fill="#FFDCC8"/>';
+    svg += '<ellipse cx="86" cy="199" rx="10" ry="5" fill="' + c + '" opacity="0.8"/>';
+    svg += '<ellipse cx="114" cy="199" rx="10" ry="5" fill="' + c + '" opacity="0.8"/>';
+    
+    svg += '<path d="M72 120 Q55 125 58 140 Q60 142 65 135 Q68 128 75 125" fill="#FFDCC8"/>';
+    svg += '<path d="M128 120 Q145 125 142 140 Q140 142 135 135 Q132 128 125 125" fill="#FFDCC8"/>';
+    
+    svg += '<ellipse cx="100" cy="70" rx="35" ry="38" fill="#3D2914"/>';
+    svg += '<path d="M66 65 Q75 50 90 55 Q85 65 80 72" fill="#3D2914"/>';
+    svg += '<path d="M134 65 Q125 50 110 55 Q115 65 120 72" fill="#3D2914"/>';
+    svg += '<path d="M66 70 Q60 95 58 115 Q62 118 68 110 Q70 90 72 75" fill="#3D2914"/>';
+    svg += '<path d="M134 70 Q140 95 142 115 Q138 118 132 110 Q130 90 128 75" fill="#3D2914"/>';
+    
+    svg += '<ellipse cx="100" cy="78" rx="28" ry="26" fill="#FFDCC8"/>';
+    
+    svg += '<ellipse cx="88" cy="80" rx="5" ry="5.5" fill="#FFF"/>';
+    svg += '<ellipse cx="112" cy="80" rx="5" ry="5.5" fill="#FFF"/>';
+    svg += '<circle cx="89" cy="81" r="3.5" fill="#1a1a1a"/>';
+    svg += '<circle cx="113" cy="81" r="3.5" fill="#1a1a1a"/>';
+    svg += '<circle cx="90.5" cy="79.5" r="1.5" fill="#FFF"/>';
+    svg += '<circle cx="114.5" cy="79.5" r="1.5" fill="#FFF"/>';
+    
+    svg += '<ellipse cx="80" cy="87" rx="5" ry="3" fill="#FFB0B0" opacity="0.5"/>';
+    svg += '<ellipse cx="120" cy="87" rx="5" ry="3" fill="#FFB0B0" opacity="0.5"/>';
+    
+    svg += '<path d="M93 92 Q100 98 107 92" stroke="#E74C3C" stroke-width="2" fill="none" stroke-linecap="round"/>';
+    
+    if (key === 'KING') {
+        svg += '<path d="M65 52 L72 35 L82 48 L100 22 L118 48 L128 35 L135 52Z" fill="#F1C40F"/>';
+        svg += '<path d="M65 52 L135 52 L132 58 L68 58Z" fill="#E6A817"/>';
+        svg += '<circle cx="100" cy="40" r="5" fill="#E74C3C"/>';
+        svg += '<circle cx="82" cy="46" r="3" fill="#3498DB"/>';
+        svg += '<circle cx="118" cy="46" r="3" fill="#3498DB"/>';
+    }
+    if (key === 'BOSS') {
+        svg += '<rect x="130" y="130" width="35" height="25" rx="4" fill="#2d3436"/>';
+        svg += '<rect x="133" y="133" width="29" height="19" rx="2" fill="#74b9ff"/>';
+        svg += '<rect x="75" y="58" width="50" height="20" rx="5" fill="#2d3436"/>';
+    }
+    if (key === 'STAR') {
+        svg += '<circle cx="100" cy="45" r="40" fill="#FECA57" opacity="0.15"/>';
+        svg += '<text x="55" y="35" font-size="14">✨</text>';
+        svg += '<text x="135" y="40" font-size="12">✨</text>';
+        svg += '<text x="145" y="90" font-size="10">✨</text>';
+    }
+    if (key === 'GOAT') {
+        svg += '<path d="M72 55 Q65 38 58 28 Q56 30 62 42 Q66 50 70 58" fill="#E8D5B7"/>';
+        svg += '<path d="M128 55 Q135 38 142 28 Q144 30 138 42 Q134 50 130 58" fill="#E8D5B7"/>';
+        svg += '<rect x="130" y="35" width="25" height="35" rx="5" fill="#F1C40F"/>';
+        svg += '<text x="137" y="58" font-size="14">⭐</text>';
+    }
+    if (key === 'WOLF') {
+        svg += '<circle cx="160" cy="40" r="18" fill="#FECA57" opacity="0.3"/>';
+        svg += '<polygon points="75,65 68,45 82,62" fill="#636e72"/>';
+        svg += '<polygon points="125,65 132,45 118,62" fill="#636e72"/>';
+    }
+    if (key === 'ICON') {
+        svg += '<rect x="40" y="25" width="120" height="150" rx="5" fill="none" stroke="#FFD700" stroke-width="3"/>';
+        svg += '<polygon points="100,30 103,36 110,36 105,40 107,47 100,43 93,47 95,40 90,36 97,36" fill="#FFD700"/>';
+    }
+    if (key === 'FIRE') {
+        svg += '<ellipse cx="65" cy="140" rx="12" ry="25" fill="#FF6B6B" opacity="0.6"/>';
+        svg += '<ellipse cx="60" cy="135" rx="8" ry="18" fill="#FECA57" opacity="0.5"/>';
+        svg += '<ellipse cx="135" cy="140" rx="12" ry="25" fill="#FF6B6B" opacity="0.6"/>';
+        svg += '<ellipse cx="140" cy="135" rx="8" ry="18" fill="#FECA57" opacity="0.5"/>';
+    }
+    if (key === 'COOL') {
+        svg += '<rect x="76" y="75" width="48" height="14" rx="7" fill="#2d3436"/>';
+        svg += '<rect x="80" y="78" width="16" height="8" rx="4" fill="#74b9ff" opacity="0.5"/>';
+        svg += '<rect x="104" y="78" width="16" height="8" rx="4" fill="#74b9ff" opacity="0.5"/>';
+    }
+    if (key === 'FLEX') {
+        svg += '<path d="M128 120 Q145 105 150 85" stroke="#FFDCC8" stroke-width="10" fill="none" stroke-linecap="round"/>';
+        svg += '<ellipse cx="155" cy="80" rx="12" ry="10" fill="#FFDCC8"/>';
+        svg += '<ellipse cx="155" cy="80" rx="8" ry="6" fill="#e17055" opacity="0.3"/>';
+    }
+    if (key === 'HYPE') {
+        svg += '<text x="50" y="50" font-size="18">🎉</text>';
+        svg += '<text x="140" y="55" font-size="16">✨</text>';
+        svg += '<text x="45" y="100" font-size="12">💫</text>';
+    }
+    if (key === 'VIBE') {
+        svg += '<rect x="65" y="62" width="70" height="14" rx="7" fill="#a29bfe"/>';
+        svg += '<circle cx="72" cy="69" r="5" fill="#6c5ce7"/>';
+        svg += '<circle cx="128" cy="69" r="5" fill="#6c5ce7"/>';
+        svg += '<text x="45" y="100" font-size="14">♪</text>';
+        svg += '<text x="148" y="95" font-size="12">♫</text>';
+    }
+    if (key === 'CHILL') {
+        svg += '<rect x="125" y="100" width="18" height="25" rx="5" fill="#ffeaa7"/>';
+        svg += '<rect x="127" y="102" width="14" height="10" rx="3" fill="#fdcb6e"/>';
+        svg += '<text x="50" y="50" font-size="14">☁️</text>';
+        svg += '<text x="140" y="45" font-size="12">☁️</text>';
+    }
+    if (key === 'NERD') {
+        svg += '<circle cx="87" cy="80" r="12" fill="none" stroke="#2d3436" stroke-width="2.5"/>';
+        svg += '<circle cx="113" cy="80" r="12" fill="none" stroke="#2d3436" stroke-width="2.5"/>';
+        svg += '<line x1="99" y1="80" x2="101" y2="80" stroke="#2d3436" stroke-width="2"/>';
+        svg += '<rect x="130" y="138" width="30" height="22" rx="3" fill="#dfe6e9"/>';
+        svg += '<rect x="132" y="140" width="26" height="18" rx="2" fill="#74b9ff"/>';
+    }
+    if (key === 'SHY') {
+        svg += '<rect x="95" y="128" width="40" height="28" rx="6" fill="#FFE0B2"/>';
+        svg += '<rect x="97" y="134" width="36" height="20" rx="4" fill="#A1887F"/>';
+        svg += '<rect x="123" y="108" width="3" height="20" rx="1" fill="#FF6B6B"/>';
+    }
+    if (key === 'LAZY') {
+        svg += '<rect x="30" y="130" width="140" height="50" rx="10" fill="#ffeaa7"/>';
+        svg += '<rect x="35" y="125" width="130" height="45" rx="8" fill="#fdcb6e" opacity="0.6"/>';
+        svg += '<text x="125" y="70" font-size="10" fill="#b2bec3">z</text>';
+        svg += '<text x="135" y="60" font-size="13" fill="#b2bec3">z</text>';
+        svg += '<text x="147" y="48" font-size="16" fill="#b2bec3">z</text>';
+    }
+    if (key === 'BABY') {
+        svg += '<rect x="70" y="48" width="60" height="20" rx="8" fill="#fab1a0"/>';
+        svg += '<circle cx="80" cy="48" r="4" fill="#e17055"/>';
+        svg += '<ellipse cx="80" cy="90" rx="8" ry="5" fill="#FFB8B8" opacity="0.4"/>';
+        svg += '<ellipse cx="120" cy="90" rx="8" ry="5" fill="#FFB8B8" opacity="0.4"/>';
+    }
+    
+    svg += '<text x="100" y="220" text-anchor="middle" font-size="12" fill="' + c + '" font-weight="700">' + key + '</text>';
+    svg += '</svg>';
+    return svg;
+}
+
+var TYPES = {
+KING: { name:'KING', cn:'王者', color:'#E74C3C', bg:'#FFF0F0', quote:'"不是我要C位，是C位它自己过来的"', nb:95, rarity:2.1, tags:['#天生领袖','#气场两米','#说到做到'], analysis:'你是人群中自带聚光灯的那个人。不是你爱出风头，是别人本能地会看向你。你做决定快、执行力强，而且你的自信有一种奇妙的感染力——跟着你走，好像就不会迷路。', opposite:'SHY', dims:[85,80,90,88] },
+BOSS: { name:'BOSS', cn:'老板', color:'#2d3436', bg:'#F0F5FF', quote:'"格局打开，你先把方案发我看看"', nb:90, rarity:3.5, tags:['#运筹帷幄','#效率狂魔','#天生指挥官'], analysis:'你可能没有KING那样的霸气外露，但你才是真正在下棋的人。善于分配资源、把控全局，你的脑子里永远有Plan B。', opposite:'LAZY', dims:[82,70,75,85] },
+STAR: { name:'STAR', cn:'明星', color:'#FF9FF3', bg:'#FFF8F0', quote:'"我不是在发光，我是光本身✨"', nb:88, rarity:4.2, tags:['#万人迷','#自带BGM','#社交天花板'], analysis:'走到哪都是焦点，不是因为你刻意表演，而是你浑身散发的快乐真的有传染性。你天生会讲故事，会制造氛围，会让枯燥的事变得有趣。', opposite:'NERD', dims:[70,95,92,65] },
+GOAT: { name:'GOAT', cn:'最强', color:'#27AE60', bg:'#F0FFF0', quote:'"不卷是不可能的，这辈子都不可能不卷"', nb:93, rarity:2.8, tags:['#卷王之王','#永远第一','#自律到变态'], analysis:'你是那种让人又佩服又害怕的存在。别人还在纠结要不要开始的时候，你已经完成了。你对自己要求极高，对别人……嗯，也不低。', opposite:'CHILL', dims:[92,60,65,95] },
+WOLF: { name:'WOLF', cn:'狼人', color:'#636e72', bg:'#F5F0FF', quote:'"我不社交，但我知道所有人的底牌"', nb:86, rarity:5.0, tags:['#暗中观察','#冷面狠人','#闷声发财'], analysis:'你是社交场上最安静的存在，但也是最可怕的。你不争不抢，不是因为你不想要，是因为你在等最佳时机。', opposite:'HYPE', dims:[78,30,35,82] },
+ICON: { name:'ICON', cn:'偶像', color:'#a29bfe', bg:'#FFF5FF', quote:'"品味这东西，是装不出来的"', nb:84, rarity:4.5, tags:['#审美在线','#精致到骨子里','#自我标准极高'], analysis:'你活在自己的美学体系里，从穿搭到生活方式都有一套自己的标准。你不随大流，因为你觉得大流太无聊了。', opposite:'LAZY', dims:[72,75,70,60] },
+FIRE: { name:'FIRE', cn:'燃王', color:'#e17055', bg:'#FFF5F0', quote:'"要么不做，要做就做到炸裂"', nb:91, rarity:3.0, tags:['#永远热血','#行动派','#做就完了'], analysis:'你浑身都是能量，一旦决定要做什么，不做到极致不罢休。你的热情会感染身边每个人。', opposite:'CHILL', dims:[80,85,78,92] },
+COOL: { name:'COOL', cn:'淡定', color:'#0984e3', bg:'#F0FFFE', quote:'"急什么，天塌了有高个子顶着"', nb:82, rarity:5.5, tags:['#情绪稳定','#人间清醒','#绝不内耗'], analysis:'你是朋友圈里的定海神针。别人慌的时候你在吃东西，别人哭的时候你在递纸巾+分析原因。', opposite:'HYPE', dims:[68,55,60,40] },
+FLEX: { name:'FLEX', cn:'秀儿', color:'#fdcb6e', bg:'#FFFBF0', quote:'"不是我爱炫，是实力不允许我低调"', nb:85, rarity:4.8, tags:['#凡尔赛大师','#自信爆棚','#人形种草机'], analysis:'你天生自信，而且你的自信不是虚的——你确实有东西可以秀。你擅长把自己的优点放大。', opposite:'SHY', dims:[65,88,85,55] },
+HYPE: { name:'HYPE', cn:'气氛组', color:'#e84393', bg:'#FFF0F5', quote:'"啊啊啊啊啊！！太好了吧！！！"', nb:80, rarity:6.0, tags:['#情绪放大器','#快乐源泉','#社恐克星'], analysis:'你是任何聚会的灵魂，你的到来就意味着冷场结束。你的共情能力超强，别人开心你比别人还开心。', opposite:'WOLF', dims:[55,95,88,70] },
+VIBE: { name:'VIBE', cn:'氛围感', color:'#6c5ce7', bg:'#F0F8FF', quote:'"别跟我讲道理，我靠感觉活着"', nb:78, rarity:6.5, tags:['#第六感选手','#文艺青年','#敏感but好用'], analysis:'你对世界的感知方式和别人不一样——别人看到数据，你看到情绪；别人看到事件，你看到故事。', opposite:'BOSS', dims:[60,70,80,45] },
+CHILL: { name:'CHILL', cn:'佛系', color:'#00cec9', bg:'#F0FFF8', quote:'"都行，可以，没关系"', nb:65, rarity:8.0, tags:['#无欲无求','#随遇而安','#压力绝缘体'], analysis:'你是这个焦虑时代的一股清流。别人在卷的时候你在躺，不是因为你不行，是因为你想通了。', opposite:'GOAT', dims:[45,50,55,20] },
+NERD: { name:'NERD', cn:'技术宅', color:'#0984e3', bg:'#F5F5FF', quote:'"这个bug我能修，但先让我查个资料"', nb:76, rarity:7.0, tags:['#深度思考者','#兴趣驱动','#知识量碾压'], analysis:'你的脑子里装着一个小型图书馆，而且还在持续更新。你对感兴趣的领域可以钻研到天荒地老。', opposite:'STAR', dims:[75,25,30,70] },
+SHY: { name:'SHY', cn:'社恐', color:'#8E44AD', bg:'#F8F0FF', quote:'"我不是不想去，我是...算了不去了"', nb:60, rarity:8.5, tags:['#隐形人','#内心戏大师','#表面冷淡内心丰富'], analysis:'你的内心世界比外面的世界精彩一万倍。你不是不能社交，你是觉得大部分社交没有意义。', opposite:'KING', dims:[40,25,20,35] },
+LAZY: { name:'LAZY', cn:'躺平', color:'#fd79a8', bg:'#FFFEF5', quote:'"明天再说，反正明天的我也不会做"', nb:55, rarity:9.0, tags:['#拖延症晚期','#被窝守护者','#效率薛定谔'], analysis:'你是deadline催出来的天才。平时能躺绝不坐，能坐绝不站，但一旦被逼到墙角，你爆发出来的效率能吓到你自己。', opposite:'BOSS', dims:[35,45,40,15] },
+BABY: { name:'BABY', cn:'小朋友', color:'#fd79a8', bg:'#FFF5F8', quote:'"可是...可是我还没准备好嘛"', nb:58, rarity:8.8, tags:['#纯真保护者','#依赖体质','#可爱即正义'], analysis:'你保留了大多数成年人已经失去的东西——好奇心和纯真。你相信世界是美好的，你容易感动，容易开心，也容易受伤。', opposite:'WOLF', dims:[30,60,55,25] }
+};
+
+var QUESTIONS = [
+{q:'周五下午3点，老板突然拉你开会，你的内心OS是？', opts:[{t:'又是我发光的时刻 💡',s:[2,0,1,1]},{t:'先开着，该摸鱼继续摸 🐟',s:[0,0,0,-2]},{t:'默默打开文档装忙 📄',s:[-1,-1,-1,0]},{t:'直接问同事「几点结束」🕐',s:[1,0,0,0]}]},
+{q:'朋友圈有人发了加薪喜报，你？', opts:[{t:'点赞+评论「请客！」🎉',s:[0,2,1,0]},{t:'默默盘算自己差多少 🧮',s:[1,-1,-1,1]},{t:'划走，与我无关 ☁️',s:[-1,-1,0,-1]},{t:'截图发闺蜜深度分析 🔍',s:[0,1,0,0]}]},
+{q:'团建要玩狼人杀，你一般是？', opts:[{t:'主动当主持/指挥 🎙️',s:[2,1,1,1]},{t:'疯狂带节奏，管他对不对 🌪️',s:[0,2,2,0]},{t:'全程沉默，投票跟风 🤐',s:[-1,-2,-1,-1]},{t:'分析每个人的微表情 🧐',s:[1,-1,-1,1]}]},
+{q:'新来的同事长得很好看，你会？', opts:[{t:'直接过去搭话「要不要一起午饭」🍱',s:[1,2,2,0]},{t:'先在工位远距离观察 👀',s:[0,-1,-1,0]},{t:'等ta来找你（ta迟早会来的）😌',s:[2,0,0,0]},{t:'查ta朋友圈研究一圈 📱',s:[0,0,-1,1]}]},
+{q:'你的手机壁纸通常是？', opts:[{t:'自拍/精心拍的美照 📸',s:[0,1,2,0]},{t:'极简纯色/默认壁纸 🖤',s:[0,-1,-1,0]},{t:'偶像/二次元/推 💕',s:[-1,1,1,-1]},{t:'各种鸡汤/Flag/KPI 📊',s:[1,0,0,2]}]},
+{q:'有人在群里@所有人问了个蠢问题，你？', opts:[{t:'秒回正确答案（顺便展示一下）✅',s:[2,1,1,1]},{t:'打了一堆字然后删掉，算了 🫠',s:[-1,-1,-1,0]},{t:'发个表情包嘲笑一下 😂',s:[0,2,1,-1]},{t:'静静等别人回答 🧘',s:[-1,-1,-1,-1]}]},
+{q:'如果让你做一天UP主/博主，你会选什么赛道？', opts:[{t:'知识科普/商业分析 📈',s:[2,0,0,2]},{t:'搞笑/整活/reaction 🤣',s:[0,2,2,0]},{t:'穿搭/美妆/生活vlog 💅',s:[0,1,2,0]},{t:'匿名吐槽/深夜电台 🌙',s:[-1,0,-1,0]}]},
+{q:'打游戏/看比赛输了，你的反应是？', opts:[{t:'复盘分析，下次一定赢 📋',s:[2,0,0,2]},{t:'破防了，需要情绪价值 😤',s:[-1,1,1,0]},{t:'无所谓，本来就是玩玩 🤷',s:[-1,-1,0,-2]},{t:'这游戏/裁判有问题吧 🙄',s:[0,1,0,0]}]},
+{q:'做了一个月的项目被砍了，你？', opts:[{t:'直接去找老板谈，不能白干 🗣️',s:[2,1,1,2]},{t:'发个朋友圈阴阳怪气一下 💀',s:[0,1,1,0]},{t:'内心流泪但脸上笑嘻嘻 😊',s:[-1,-1,-1,0]},{t:'砍就砍，早点下班不好吗 🏠',s:[-1,0,0,-2]}]},
+{q:'闺蜜/兄弟突然说要创业，你？', opts:[{t:'帮ta列商业计划+泼冷水+打钱 💰',s:[2,1,0,2]},{t:'啊啊啊太酷了吧！！全力支持！🔥',s:[0,2,1,1]},{t:'不太看好但不好意思说 😬',s:[-1,-1,-1,0]},{t:'你创你的，跟我没关系 ☕',s:[0,-1,-1,-1]}]},
+{q:'在电梯里遇到大老板，你会？', opts:[{t:'主动打招呼+顺便提一嘴最近的成果 📊',s:[2,1,1,2]},{t:'微笑点头然后掏手机 📱',s:[0,0,0,0]},{t:'假装在打电话避免对话 📞',s:[-2,-1,-2,-1]},{t:'直接聊天，反正都是人 🤝',s:[1,2,1,0]}]},
+{q:'你的浏览器收藏夹里，哪类最多？', opts:[{t:'行业报告/深度分析/课程 📚',s:[2,0,0,2]},{t:'购物/种草/打折信息 🛒',s:[0,1,1,0]},{t:'段子/梗图/沙雕视频 😆',s:[0,2,1,-1]},{t:'什么收藏夹？从来不存 🫥',s:[-1,-1,0,-2]}]},
+{q:'如果穿越回高中，你会是？', opts:[{t:'班长/学生会主席 🏫',s:[2,1,1,2]},{t:'班级的开心果 🎪',s:[0,2,2,0]},{t:'最后一排睡觉的那个 😴',s:[-1,-1,-1,-2]},{t:'默默考第一然后装作不在意 📝',s:[1,-2,-2,2]}]},
+{q:'你点外卖时通常是？', opts:[{t:'有固定几家店，闭眼点 🔄',s:[0,-1,0,0]},{t:'看评分、看评论、看配料，研究20分钟 🔬',s:[1,0,0,1]},{t:'问同事/朋友吃啥然后跟 👥',s:[-1,1,0,-1]},{t:'随便选个满减最划算的 💸',s:[0,0,0,0]}]},
+{q:'年底写年终总结，你的状态是？', opts:[{t:'提前准备，数据+成果，写得老板看了想加薪 📊',s:[2,0,0,2]},{t:'从同事那儿复制模板改改凑字数 📋',s:[0,0,0,-1]},{t:'deadline前一晚通宵赶，写完自己都被感动了 🌙',s:[0,1,0,1]},{t:'什么年终总结？能不写吗？🙃',s:[-1,-1,0,-2]}]},
+{q:'聚餐时服务员上错菜了，你会？', opts:[{t:'直接叫服务员换，顺便替全桌说 🗣️',s:[2,1,1,1]},{t:'用幽默的方式化解尴尬 😄',s:[0,2,2,0]},{t:'等别人说，实在没人说再开口 😶',s:[-1,-1,-1,0]},{t:'不想麻烦，将就吃了 🍽️',s:[-2,-1,0,-1]}]},
+{q:'周末独处时，你最可能在做什么？', opts:[{t:'学新技能/搞副业/看行业资讯 📱',s:[2,0,0,2]},{t:'约人出去浪/探店/拍照 📸',s:[0,2,2,0]},{t:'追剧/打游戏/躺着刷手机 🛋️',s:[-1,0,0,-2]},{t:'独处？哪有时间独处 🏃',s:[1,1,1,1]}]},
+{q:'你发了一条朋友圈，10分钟没人点赞，你？', opts:[{t:'无所谓，我发圈是给自己看的 😎',s:[1,-1,-1,0]},{t:'开始怀疑是不是被屏蔽了 😰',s:[-1,1,1,0]},{t:'删了重发一条更好的 📝',s:[0,1,1,1]},{t:'我从不发朋友圈 🚫',s:[0,-2,-2,0]}]},
+{q:'如果给你100万让你创业，你会做什么？', opts:[{t:'先做市场调研再决定 📈',s:[2,0,0,2]},{t:'开一家有调性的小店 ☕',s:[0,1,1,0]},{t:'全投了搞个大的！赢了会所输了下海 🎰',s:[1,2,1,1]},{t:'存银行，100万够花好久了 💰',s:[-1,-1,-1,-2]}]},
+{q:'最后一题：你觉得这个测试怎么样？', opts:[{t:'还行，发给朋友看看他们是什么类型 📤',s:[1,1,1,0]},{t:'太准了吧！！我要发朋友圈 🤯',s:[0,2,2,0]},{t:'一般般，但反正都做完了 😐',s:[0,-1,0,-1]},{t:'我要重新测一遍确保结果准确 🔄',s:[1,0,0,1]}]}
+];
+
+var DIM_LABELS = [['实力型','氛围型'],['高调型','低调型'],['社交型','独处型'],['冲锋型','佛系型']];
+var currentQ = 0;
+var scores = [0,0,0,0];
+
+function startQuiz() {
+    currentQ = 0;
+    scores = [0,0,0,0];
+    document.getElementById('homePage').classList.remove('active');
+    document.getElementById('quizPage').classList.add('active');
+    document.getElementById('resultPage').classList.remove('active');
+    renderQuestion();
+}
+
+function renderQuestion() {
+    var q = QUESTIONS[currentQ];
+    document.getElementById('progressFill').style.width = ((currentQ+1)/QUESTIONS.length*100)+'%';
+    document.getElementById('questionCounter').textContent = (currentQ+1)+' / '+QUESTIONS.length;
+    document.getElementById('questionText').textContent = q.q;
+    var wrap = document.getElementById('optionsWrap');
+    wrap.innerHTML = '';
+    for(var i=0;i<q.opts.length;i++){
+        var btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = q.opts[i].t;
+        btn.setAttribute('data-idx',i);
+        btn.onclick = function(){
+            var idx = parseInt(this.getAttribute('data-idx'));
+            var s = QUESTIONS[currentQ].opts[idx].s;
+            for(var j=0;j<4;j++) scores[j]+=s[j];
+            this.classList.add('selected');
+            var self = this;
+            setTimeout(function(){
+                currentQ++;
+                if(currentQ>=QUESTIONS.length) showResult();
+                else renderQuestion();
+            },300);
         };
+        wrap.appendChild(btn);
+    }
+}
 
-        // 状态变量
-        let currentQuestion = 0;
-        let scores = {
-            real: 0,    // 真实程度：正=真牛，负=装牛
-            show: 0,    // 外显程度：正=张扬，负=低调  
-            talent: 0,  // 来源：正=天赋，负=努力
-            online: 0   // 场景：正=线上，负=线下
-        };
+function calcType() {
+    var best='CHILL', bestScore=-999999;
+    var max = QUESTIONS.length*2;
+    var norm = [];
+    for(var i=0;i<4;i++){
+        var p = ((scores[i]+max)/(max*2))*100;
+        norm.push(Math.max(0,Math.min(100,p)));
+    }
+    for(var k in TYPES){
+        if(!TYPES.hasOwnProperty(k)) continue;
+        var sim = 0;
+        for(var i=0;i<4;i++) sim -= Math.pow(norm[i]-TYPES[k].dims[i],2);
+        if(sim>bestScore){ bestScore=sim; best=k; }
+    }
+    return best;
+}
 
-        // 开始测试
-        function startTest() {
-            currentQuestion = 0;
-            scores = { real: 0, show: 0, talent: 0, online: 0 };
-            showPage('questionPage');
-            showQuestion();
-        }
+function showResult() {
+    var key = calcType();
+    var t = TYPES[key];
+    document.getElementById('quizPage').classList.remove('active');
+    document.getElementById('resultPage').classList.add('active');
+    document.getElementById('resultAvatar').innerHTML = makeSVG(key);
+    var tn = document.getElementById('resultTypeName');
+    tn.textContent = t.name+' · '+t.cn;
+    tn.style.color = t.color;
+    document.getElementById('resultTypeSub').textContent = '你的NBTI人格类型';
+    document.getElementById('resultQuote').textContent = t.quote;
+    document.getElementById('nbValue').textContent = t.nb+'%';
+    document.getElementById('nbBarFill').style.width = t.nb+'%';
+    document.getElementById('nbRarity').textContent = '👥 仅 '+t.rarity+'% 的人和你一样';
+    var dr = document.getElementById('dimRows');
+    dr.innerHTML = '';
+    for(var i=0;i<t.dims.length;i++){
+        var v = t.dims[i];
+        var row = document.createElement('div');
+        row.className = 'dim-row';
+        var bar = v>=50 ? '<div class="dim-bar-fill right" style="width:'+(v-50)+'%"></div>' : '<div class="dim-bar-fill left" style="width:'+(50-v)+'%"></div>';
+        row.innerHTML = '<span class="dim-label">'+DIM_LABELS[i][0]+'</span><div class="dim-bar-wrap"><div class="dim-bar-center"></div>'+bar+'</div><span class="dim-label-r">'+DIM_LABELS[i][1]+'</span>';
+        dr.appendChild(row);
+    }
+    var tw = document.getElementById('tagsWrap');
+    tw.innerHTML = '';
+    for(var i=0;i<t.tags.length;i++){
+        var sp = document.createElement('span');
+        sp.className = 'tag';
+        sp.textContent = t.tags[i];
+        sp.style.background = 'linear-gradient(135deg,'+t.bg+','+t.color+'15)';
+        sp.style.color = t.color;
+        tw.appendChild(sp);
+    }
+    document.getElementById('analysisText').textContent = t.analysis;
+    var opp = TYPES[t.opposite];
+    document.getElementById('oppositeAvatar').innerHTML = makeSVG(t.opposite);
+    var on = document.getElementById('oppositeName');
+    on.textContent = opp.name+' · '+opp.cn;
+    on.style.color = opp.color;
+    document.getElementById('oppositeDesc').textContent = opp.quote;
+}
 
-        // 显示页面
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-        }
-
-        // 显示问题
-        function showQuestion() {
-            const q = questions[currentQuestion];
-            document.getElementById('questionNum').textContent = `问题 ${currentQuestion + 1} / ${questions.length}`;
-            document.getElementById('questionText').textContent = q.text;
-            document.getElementById('progressFill').style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
-
-            const optionsHtml = q.options.map((opt, idx) => 
-                `<div class="option" onclick="selectOption(${idx})">${opt.text}</div>`
-            ).join('');
-            document.getElementById('options').innerHTML = optionsHtml;
-        }
-
-        // 选择选项
-        function selectOption(idx) {
-            const q = questions[currentQuestion];
-            const selected = q.options[idx];
-            
-            // 累加分数
-            for (let key in selected.scores) {
-                scores[key] += selected.scores[key];
-            }
-
-            currentQuestion++;
-            
-            if (currentQuestion < questions.length) {
-                showQuestion();
-            } else {
-                showResult();
-            }
-        }
-
-        // 计算并显示结果
-        function showResult() {
-            // 根据四个维度确定人格
-            const isReal = scores.real > 0;
-            const isShow = scores.show > 0;
-            const isTalent = scores.talent > 0;
-            const isOnline = scores.online > 0;
-
-            let resultKey;
-            
-            if (isReal && isShow && isTalent && !isOnline) resultKey = 'KING';
-            else if (isReal && isShow && !isTalent && !isOnline) resultKey = 'BOSS';
-            else if (isReal && isShow && isTalent && isOnline) resultKey = 'STAR';
-            else if (isReal && isShow && !isTalent && isOnline) resultKey = 'FIRE';
-            else if (isReal && !isShow && isTalent && !isOnline) resultKey = 'WOLF';
-            else if (isReal && !isShow && !isTalent && !isOnline) resultKey = 'SAGE';
-            else if (isReal && !isShow && isTalent && isOnline) resultKey = 'MOON';
-            else if (isReal && !isShow && !isTalent && isOnline) resultKey = 'SEED';
-            else if (!isReal && isShow && isTalent && !isOnline) resultKey = 'LOUD';
-            else if (!isReal && isShow && !isTalent && !isOnline) resultKey = 'HYPE';
-            else if (!isReal && isShow && isTalent && isOnline) resultKey = 'BUZZ';
-            else if (!isReal && isShow && !isTalent && isOnline) resultKey = 'FOAM';
-            else if (!isReal && !isShow && isTalent && !isOnline) resultKey = 'CHILL';
-            else if (!isReal && !isShow && !isTalent && !isOnline) resultKey = 'SLOW';
-            else if (!isReal && !isShow && isTalent && isOnline) resultKey = 'LURK';
-            else resultKey = 'SOFA';
-
-            const result = results[resultKey];
-
-            document.getElementById('resultWord').textContent = result.word;
-            document.getElementById('resultWord').className = `result-word result-${result.color}`;
-            document.getElementById('resultChinese').textContent = result.chinese;
-            document.getElementById('resultDesc').textContent = result.desc;
-
-            const tagsHtml = result.tags.map(t => `<span class="tag">#${t}</span>`).join('');
-            document.getElementById('resultTags').innerHTML = tagsHtml;
-
-            const dimensionsHtml = `
-                <div class="dimension">
-                    <div class="dimension-label">牛逼真实度</div>
-                    <div class="dimension-value">${isReal ? '✅ 真牛逼' : '🎭 精神牛逼'}</div>
-                </div>
-                <div class="dimension">
-                    <div class="dimension-label">外显程度</div>
-                    <div class="dimension-value">${isShow ? '📢 高调张扬' : '🤫 闷声低调'}</div>
-                </div>
-                <div class="dimension">
-                    <div class="dimension-label">牛逼来源</div>
-                    <div class="dimension-value">${isTalent ? '🎁 老天赏饭' : '💪 后天努力'}</div>
-                </div>
-                <div class="dimension">
-                    <div class="dimension-label">主战场</div>
-                    <div class="dimension-value">${isOnline ? '🌐 线上赛博' : '🏢 线下现实'}</div>
-                </div>
-            `;
-            document.getElementById('dimensions').innerHTML = dimensionsHtml;
-
-            showPage('resultPage');
-        }
-
-        // 分享结果
-        function shareResult() {
-            const resultWord = document.getElementById('resultWord').textContent;
-            const resultChinese = document.getElementById('resultChinese').textContent;
-            const text = `我在NBTI测试中是「${resultWord}」${resultChinese}！快来测测你是哪种牛逼人格？`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: 'NBTI 牛逼人格测试',
-                    text: text,
-                    url: window.location.href
-                });
-            } else {
-                navigator.clipboard.writeText(text + ' ' + window.location.href).then(() => {
-                    showToast('已复制到剪贴板，快去分享吧！');
-                });
-            }
-        }
-
-        // 重新测试
-        function restart() {
-            showPage('homePage');
-        }
-
-        // 显示提示
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
-        }
-    </script>
+function retryQuiz() {
+    document.getElementById('resultPage').classList.remove('active');
+    document.getElementById('quizPage').classList.remove('active');
+    document.getElementById('homePage').classList.add('active');
+}
+</script>
 </body>
 </html>
